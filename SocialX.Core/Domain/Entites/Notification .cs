@@ -1,4 +1,5 @@
-﻿using SocialX.Core.storeCore.Domain.IdentityEntites;
+﻿using SocialX.Core.Enumuration;
+using SocialX.Core.storeCore.Domain.IdentityEntites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +10,18 @@ namespace SocialX.Core.Domain.Entites
 {
     public class Notification : BaseEntity
     {
-        public Guid UserId { get; set; }          // Receiver
-        public ApplicationUser User { get; set; }
+        public Guid UserId { get; set; }      
+        public ApplicationUser ReceiverUser { get; set; }
 
-        public Guid ActorUserId { get; set; }     // Actor
-        public ApplicationUser ActorUser { get; set; }
+        public Guid ActorUserId { get; set; }     
+        public ApplicationUser SenderUser { get; set; }
 
-        public string Type { get; set; }           // Follow, Like, Comment, ReTweet
-        public Guid EntityId { get; set; }         // TweetId / CommentId
+       
+        public NotificationType Type { get; set; }
+
+        public Guid? EntityId { get; set; }
+
+        public string? Content { get; set; }
         public bool IsRead { get; set; } = false;
     }
 

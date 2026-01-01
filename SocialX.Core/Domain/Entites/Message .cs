@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocialX.Core.storeCore.Domain.IdentityEntites;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,13 @@ namespace SocialX.Core.Domain.Entites
         public Conversation Conversation { get; set; }
 
         public Guid SenderId { get; set; }
-        public User Sender { get; set; }
+        public ApplicationUser Sender { get; set; }
 
         public string Content { get; set; }
+        public bool IsRead { get; set; }
+        public DateTime? ReadAt { get; set; }
+
+        public ICollection<Attachment>? Attachments { get; set; }
     }
 
 }

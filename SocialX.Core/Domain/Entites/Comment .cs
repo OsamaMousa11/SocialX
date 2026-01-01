@@ -19,10 +19,11 @@ namespace SocialX.Core.Domain.Entites
 
       
         public Guid? ParentCommentId { get; set; }
-        public Comment ParentComment { get; set; }
-        public ICollection<Comment> Replies { get; set; }
+        public Comment? ParentComment { get; set; }
+        public ICollection<Comment>?Replies { get; set; }
 
-        public ICollection<Media> Media { get; set; }
+        public ICollection<Attachment> ? Attachments { get; set; }
+        public ICollection<Like>? Likes { get; set; }
     }
 
 }

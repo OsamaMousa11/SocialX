@@ -13,6 +13,7 @@ namespace SocialX.Core.Domain.Entites
         public ApplicationUser Follower { get; set; }
 
         public Guid FollowingId { get; set; }
+
         public ApplicationUser Following { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

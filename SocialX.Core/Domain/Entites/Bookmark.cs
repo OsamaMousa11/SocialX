@@ -15,7 +15,7 @@ namespace SocialX.Core.Domain.Entites
         public Guid TweetId { get; set; }
         public Tweet Tweet { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
     }
 
 }

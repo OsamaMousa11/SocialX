@@ -8,10 +8,10 @@ namespace SocialX.Core.Domain.Entites
 {
     public class Hashtag
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         public string Name { get; set; }
-
-        public ICollection<TweetHashtag> TweetHashtags { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public ICollection<TweetHashtag>? TweetHashtags { get; set; }
     }
 
 }

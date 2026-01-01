@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Configration\" />
     <Folder Include="Repositories\" />
     <Folder Include="UnitofWork\" />
   </ItemGroup>

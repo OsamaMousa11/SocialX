@@ -1,15 +1,26 @@
 ﻿using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
-using SocialX.infrastraction.Data;
+
 using System;
 using Microsoft.OpenApi.Models;
+using SocialX.Infrastructure.Data;
+using SocialX.Core.storeCore.Domain.IdentityEntites;
+using SocialX.Core.Domain.IdentityEntites;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using SocialX.Core.DTO.AuthenticationDTO;
+using SocialX.Core.ServiceContract;
+using SocialX.Core.Service;
+using Microsoft.EntityFrameworkCore;
 namespace SocialX.Api
 {
     public static class ConfigureServiceExtension
     {
         public static IServiceCollection ServiceConfiguration(this IServiceCollection Services, IConfiguration Configuration)
         {
-           /* Services.AddDbContext<AppDbContext>(options =>
+            Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("connstr") ??
                 throw new InvalidOperationException("Connection string 'connstr' not found."));
@@ -61,11 +72,11 @@ namespace SocialX.Api
                 });
             });
 
-            */
-          /*  Services.Configure<JwtDTO>(Configuration.GetSection("JWT"));
+            
+            Services.Configure<JwtDTO>(Configuration.GetSection("JWT"));
             Services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             Services.AddTransient<IMailingService, MailingService>();
-            Services.AddScoped<IAuthenticationServices, AuthenticationServices>();*/
+            Services.AddScoped<IAuthenticationServices, AuthenticationServices>();
           //  Services.AddScoped<IUnitOfWork, UnitOfWork>();
           //  Services.AddScoped(typeof(IGenericRepository<>), typeof(GenricRepository<>));
             

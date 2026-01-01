@@ -9,6 +9,8 @@ namespace SocialX.Core.Domain.Entites
 {
     public class Like
     {
+
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public ApplicationUser User { get; set; }
 
@@ -18,7 +20,9 @@ namespace SocialX.Core.Domain.Entites
         public Guid? CommentId { get; set; }
         public Comment Comment { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } 
+   
+
     }
 
 }
