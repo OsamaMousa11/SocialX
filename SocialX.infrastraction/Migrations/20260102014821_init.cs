@@ -519,8 +519,6 @@ namespace SocialX.infrastraction.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     FileUrl = table.Column<string>(type: "nvarchar(2083)", maxLength: 2083, nullable: false),
                     Type = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Width = table.Column<int>(type: "int", nullable: true),
-                    Height = table.Column<int>(type: "int", nullable: true),
                     FileSize = table.Column<long>(type: "bigint", nullable: true),
                     TweetId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -559,43 +557,24 @@ namespace SocialX.infrastraction.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TweetId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    ApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CommentId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    TweetId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Likes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Likes_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Likes_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Likes_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Likes_Comments_CommentId1",
-                        column: x => x.CommentId1,
-                        principalTable: "Comments",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Likes_Tweets_TweetId",
                         column: x => x.TweetId,
-                        principalTable: "Tweets",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Likes_Tweets_TweetId1",
-                        column: x => x.TweetId1,
                         principalTable: "Tweets",
                         principalColumn: "Id");
                 });
@@ -755,29 +734,14 @@ namespace SocialX.infrastraction.Migrations
                 column: "FollowingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Likes_ApplicationUserId",
-                table: "Likes",
-                column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Likes_CommentId",
                 table: "Likes",
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Likes_CommentId1",
-                table: "Likes",
-                column: "CommentId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Likes_TweetId",
                 table: "Likes",
                 column: "TweetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Likes_TweetId1",
-                table: "Likes",
-                column: "TweetId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Likes_UserId",

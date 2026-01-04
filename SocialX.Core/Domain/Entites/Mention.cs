@@ -13,6 +13,9 @@ namespace SocialX.Core.Domain.Entites
         public Tweet Tweet { get; set; }
 
         public Guid MentionedUserId { get; set; }
-        public ApplicationUser MentionedUser { get; set; } 
+        public ApplicationUser MentionedUser { get; set; }
+
+      
+
     }
 }

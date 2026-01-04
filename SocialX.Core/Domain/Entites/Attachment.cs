@@ -11,8 +11,7 @@ namespace SocialX.Core.Domain.Entites
     {
         public string FileUrl { get; set; }
         public MediaType Type { get; set; }
-        public int? Width { get; set; }
-        public int? Height { get; set; }
+  
         public long? FileSize { get; set; }
 
         public Guid? TweetId { get; set; }

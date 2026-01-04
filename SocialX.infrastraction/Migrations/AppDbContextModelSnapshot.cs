@@ -148,9 +148,6 @@ namespace SocialX.infrastraction.Migrations
                         .HasMaxLength(2083)
                         .HasColumnType("nvarchar(2083)");
 
-                    b.Property<int?>("Height")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -168,9 +165,6 @@ namespace SocialX.infrastraction.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -392,13 +386,7 @@ namespace SocialX.infrastraction.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("CommentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CommentId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -409,23 +397,14 @@ namespace SocialX.infrastraction.Migrations
                     b.Property<Guid?>("TweetId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TweetId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("CommentId");
 
-                    b.HasIndex("CommentId1");
-
                     b.HasIndex("TweetId");
-
-                    b.HasIndex("TweetId1");
 
                     b.HasIndex("UserId");
 
@@ -949,32 +928,19 @@ namespace SocialX.infrastraction.Migrations
 
             modelBuilder.Entity("SocialX.Core.Domain.Entites.Like", b =>
                 {
-                    b.HasOne("SocialX.Core.storeCore.Domain.IdentityEntites.ApplicationUser", null)
-                        .WithMany("Likes")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("SocialX.Core.Domain.Entites.Comment", "Comment")
-                        .WithMany()
+                        .WithMany("Likes")
                         .HasForeignKey("CommentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("SocialX.Core.Domain.Entites.Comment", null)
-                        .WithMany("Likes")
-                        .HasForeignKey("CommentId1");
-
                     b.HasOne("SocialX.Core.Domain.Entites.Tweet", "Tweet")
-                        .WithMany()
-                        .HasForeignKey("TweetId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("SocialX.Core.Domain.Entites.Tweet", null)
                         .WithMany("Likes")
-                        .HasForeignKey("TweetId1");
+                        .HasForeignKey("TweetId");
 
                     b.HasOne("SocialX.Core.storeCore.Domain.IdentityEntites.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Likes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Comment");

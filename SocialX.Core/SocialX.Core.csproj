@@ -7,16 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\IRepositoryContract\" />
-    <Folder Include="IUnitofWork\" />
     <Folder Include="DTO\" />
     <Folder Include="Helper\" />
     <Folder Include="MappingProfile\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Domain\IRepositoryContract\IProfileRepository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.5" />
     <PackageReference Include="MimeKit" Version="4.14.0" />

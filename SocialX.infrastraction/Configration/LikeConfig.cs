@@ -22,18 +22,19 @@ namespace SocialX.infrastraction.Configration
 
 
             builder.HasOne(l => l.User)
-                   .WithMany()
-                   .HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.Cascade); ;
+                   .WithMany(u => u.Likes)
+                   .HasForeignKey(l => l.UserId)
+                  .OnDelete(DeleteBehavior.Cascade); ;
 
-            builder.HasOne(l => l.Tweet)
-                   .WithMany()
-                   .HasForeignKey(l => l.TweetId)
+            builder.HasOne(l => l.User)
+                   .WithMany(u => u.Likes)
+                   .HasForeignKey(l => l.UserId)
                    .OnDelete(DeleteBehavior.NoAction) ;
 
             builder.HasOne(l => l.Comment)
-                   .WithMany()
-                   .HasForeignKey(l => l.CommentId)
-                   .OnDelete(DeleteBehavior.Cascade).OnDelete(DeleteBehavior.NoAction) ;
+                .WithMany(c => c.Likes)
+                .HasForeignKey(l => l.CommentId)
+                .OnDelete(DeleteBehavior.Cascade).OnDelete(DeleteBehavior.NoAction) ;
 
             builder.ToTable("Likes");
 
