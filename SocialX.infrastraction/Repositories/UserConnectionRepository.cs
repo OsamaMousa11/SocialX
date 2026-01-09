@@ -1,4 +1,5 @@
 ﻿using SocialX.Core.Domain.Entites;
+using SocialX.Core.Domain.IRepositoryContract;
 using SocialX.Infrastructure.Data;
 using System;
 using System.Collections.Generic;

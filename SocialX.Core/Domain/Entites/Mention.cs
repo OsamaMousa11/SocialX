@@ -15,7 +15,9 @@ namespace SocialX.Core.Domain.Entites
         public Guid MentionedUserId { get; set; }
         public ApplicationUser MentionedUser { get; set; }
 
-      
+        public DateTime CreatedAt { get; set; }
+
+
 
     }
 }

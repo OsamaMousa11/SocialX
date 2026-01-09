@@ -31,6 +31,7 @@ namespace SocialX.infrastraction.Configration
                    .HasDefaultValue(false);
 
             builder.HasIndex(e => e.IsDeleted);
+
         }
     }
 }

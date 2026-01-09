@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using SocialX.Api;
+using SocialX.Api.Middlewares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors();
 

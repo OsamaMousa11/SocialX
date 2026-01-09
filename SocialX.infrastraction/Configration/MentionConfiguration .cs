@@ -16,6 +16,10 @@ namespace SocialX.infrastraction.Configration
             
             builder.HasKey(m => new { m.TweetId, m.MentionedUserId });
 
+            builder.Property(e => e.CreatedAt)
+                  .IsRequired()
+                  .HasDefaultValueSql("GETUTCDATE()");
+
             builder.HasOne(m => m.Tweet)
                .WithMany(t => t.Mentions)
                .HasForeignKey(m => m.TweetId)
@@ -24,8 +28,9 @@ namespace SocialX.infrastraction.Configration
             builder.HasOne(m => m.MentionedUser)
                    .WithMany()
                    .HasForeignKey(m => m.MentionedUserId)
-                   .OnDelete(DeleteBehavior.NoAction); 
+                   .OnDelete(DeleteBehavior.NoAction);
 
+            builder.HasIndex(m => m.CreatedAt);
             builder.ToTable("Mentions");
         }
     }

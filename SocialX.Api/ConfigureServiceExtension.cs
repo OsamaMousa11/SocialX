@@ -1,19 +1,19 @@
-﻿using Microsoft.AspNetCore.Cors.Infrastructure;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
-
-using System;
-using Microsoft.OpenApi.Models;
-using SocialX.Infrastructure.Data;
-using SocialX.Core.storeCore.Domain.IdentityEntites;
-using SocialX.Core.Domain.IdentityEntites;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using SocialX.Core.DTO.AuthenticationDTO;
-using SocialX.Core.ServiceContract;
-using SocialX.Core.Service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using SocialX.Api.Middlewares;
+using SocialX.Core.Domain.IdentityEntites;
+using SocialX.Core.DTO.AuthenticationDTO;
+using SocialX.Core.Service;
+using SocialX.Core.ServiceContract;
+using SocialX.Core.storeCore.Domain.IdentityEntites;
+using SocialX.Infrastructure.Data;
+using System;
+using System.Text;
 namespace SocialX.Api
 {
     public static class ConfigureServiceExtension
@@ -91,6 +91,7 @@ namespace SocialX.Api
        });
          //   Services.AddAutoMapper(typeof(CategoryConfig).Assembly);
             Services.AddControllers();
+           
             Services.AddEndpointsApiExplorer();
             Services.AddSwaggerGen(c =>
             {
