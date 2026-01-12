@@ -8,16 +8,17 @@ namespace SocialX.Core.ServiceContract
 {
     public interface IMentionService
     {
-     
-        Task<ApiResponse<PaginatedResult<MentionResponse>>> GetUserMentionsAsync(
-            Guid userId,
-            int pageNumber,
-            int pageSize,
-            CancellationToken cancellationToken = default);
 
-     
-    
-    
-     
+        Task<ApiResponse<bool>> CreateMentionsFromContentAsync(
+                    Guid contentId,
+                    string content,
+                    bool isTweet = true,
+                    CancellationToken cancellationToken = default);
+
+
+
+
+
+
     }
 }

@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using SocialX.Core.Domain.Entites;
+
 using SocialX.Core.DTO.Common;
-using SocialX.Core.DTO.MentionDto;
+using SocialX.Core.Helper;
 using SocialX.Core.IUnitofWork;
+
 using SocialX.Core.ServiceContract;
+using SocialX.Core.storeCore.Domain.IdentityEntites;
+
 using System.Linq;
 
 namespace SocialX.Application.Services
@@ -15,94 +19,55 @@ namespace SocialX.Application.Services
         private readonly IMapper _mapper;
         private readonly ILogger<MentionService> _logger;
 
-        public MentionService(IUnitOfWork unitOfWork, IMapper mapper)
+        public MentionService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<MentionService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
         }
 
-        public async Task<ApiResponse<PaginatedResult<MentionResponse>>> GetUserMentionsAsync(
-              Guid userId,
-              int pageNumber,
-              int pageSize,
-              CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<bool>> CreateMentionsFromContentAsync(
+            Guid contentId,  
+            string content,
+            bool isTweet = true,  
+            CancellationToken cancellationToken = default)
         {
-            var mentions = await _unitOfWork.Repository<Mention>()
-                .FindAllAsync(
-                    m => m.MentionedUserId == userId,
-                    includeProperties: "Tweet.User.Profile",
+            var usernames = MentionHelper.ExtractUsernames(content).Distinct().ToList(); 
+
+            if (!usernames.Any())
+                return ApiResponse<bool>.SuccessResponse(true);
+
+            
+            var users = await _unitOfWork.Repository<ApplicationUser>()
+                .FindAllAsync(u => usernames.Contains(u.UserName!), cancellationToken: cancellationToken);
+
+            if (!users.Any())
+                return ApiResponse<bool>.SuccessResponse(true);
+
+           
+            var existingMentions = await _unitOfWork.Repository<Mention>()
+                .FindAllAsync(m => m.TweetId == contentId && users.Select(u => u.Id).Contains(m.MentionedUserId),
                     cancellationToken: cancellationToken);
 
-            var validMentions = mentions
-                .Where(m => m.Tweet != null && !m.Tweet.IsDeleted)
-                .OrderByDescending(m => m.CreatedAt)
+            var newMentions = users
+                .Where(u => !existingMentions.Any(em => em.MentionedUserId == u.Id))
+                .Select(user => new Mention
+                {
+                    TweetId = contentId,  
+                    MentionedUserId = user.Id,
+                    CreatedAt = DateTime.UtcNow
+                })
                 .ToList();
 
-            var totalCount = validMentions.Count;
-
-            var pagedMentions = validMentions
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            if (!pagedMentions.Any())
+            if (newMentions.Any())
             {
-                return ApiResponse<PaginatedResult<MentionResponse>>.SuccessResponse(
-                    new PaginatedResult<MentionResponse>(
-                        new List<MentionResponse>(),
-                        totalCount,
-                        pageNumber,
-                        pageSize));
+                await _unitOfWork.Repository<Mention>().AddRangeAsync(newMentions, cancellationToken);
+                await _unitOfWork.CompleteAsync(cancellationToken);
+
+                _logger.LogInformation("Created {Count} new mentions for content {ContentId}", newMentions.Count, contentId);
             }
 
-            var tweetIds = pagedMentions.Select(m => m.TweetId).Distinct().ToList();
-
-
-
-            var likes = await _unitOfWork.Repository<Like>()
-                .FindAllAsync(l => tweetIds.Contains(l.Id), cancellationToken: cancellationToken);
-
-            var comments = await _unitOfWork.Repository<Comment>()
-                .FindAllAsync(c => tweetIds.Contains(c.TweetId) && !c.IsDeleted, cancellationToken: cancellationToken);
-
-            var retweets = await _unitOfWork.Repository<Tweet>()
-                .FindAllAsync(t => t.OriginalTweetId != null && tweetIds.Contains(t.OriginalTweetId.Value),
-                    cancellationToken: cancellationToken);
-
-            var userLikes = await _unitOfWork.Repository<Like>()
-                .FindAllAsync(l => l.UserId == userId && tweetIds.Contains(l.Id),
-                    cancellationToken: cancellationToken);
-
-            var userBookmarks = await _unitOfWork.Repository<Bookmark>()
-                .FindAllAsync(b => b.UserId == userId && tweetIds.Contains(b.TweetId),
-                    cancellationToken: cancellationToken);
-
-            var likesDict = likes.GroupBy(l => l.TweetId).ToDictionary(g => g.Key, g => g.Count());
-            var commentsDict = comments.GroupBy(c => c.TweetId).ToDictionary(g => g.Key, g => g.Count());
-            var retweetsDict = retweets.GroupBy(r => r.OriginalTweetId!.Value).ToDictionary(g => g.Key, g => g.Count());
-
-            var likedSet = userLikes.Select(l => l.TweetId).ToHashSet();
-            var bookmarkedSet = userBookmarks.Select(b => b.TweetId).ToHashSet();
-
-            var result = pagedMentions.Select(m =>
-            {
-                var dto = _mapper.Map<MentionResponse>(m.Tweet);
-
-                dto.LikesCount = likesDict.GetValueOrDefault(m.TweetId, 0);
-                dto.CommentsCount = commentsDict.GetValueOrDefault(m.TweetId, 0);
-                dto.RetweetsCount = retweetsDict.GetValueOrDefault(m.TweetId, 0);
-                dto.IsLikedByCurrentUser = likedSet.Contains(m.TweetId);
-                dto.IsBookmarkedByCurrentUser = bookmarkedSet.Contains(m.TweetId);
-
-                return dto;
-            }).ToList();
-
-            return ApiResponse<PaginatedResult<MentionResponse>>.SuccessResponse(
-                new PaginatedResult<MentionResponse>(
-                    result,
-                    totalCount,
-                    pageNumber,
-                    pageSize));
+            return ApiResponse<bool>.SuccessResponse(true);
         }
     }
 }

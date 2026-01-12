@@ -14,6 +14,7 @@ namespace SocialX.Core.Domain.Entites
         public Guid HashtagId { get; set; }
         public Hashtag Hashtag { get; set; }
 
+        public int Count { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 

@@ -17,23 +17,21 @@ namespace SocialX.Api.Controllers
             _bookmarkService = bookmarkService;
         }
 
-
         [HttpPost("{tweetId}/bookmark")]
         public async Task<IActionResult> BookmarkAsync(
             Guid tweetId,
             CancellationToken cancellationToken)
         {
-            var userId = User.GetUserId(); 
+            var userId = User.GetUserId();
 
-            var result = await _bookmarkService.BookmarkAsync(
+            await _bookmarkService.BookmarkAsync(
                 userId,
                 tweetId,
                 cancellationToken);
 
-            return Ok(result);
+            return Ok();
         }
 
-    
         [HttpDelete("{tweetId}/bookmark")]
         public async Task<IActionResult> UnbookmarkAsync(
             Guid tweetId,
@@ -41,12 +39,12 @@ namespace SocialX.Api.Controllers
         {
             var userId = User.GetUserId();
 
-            var result = await _bookmarkService.UnbookmarkAsync(
+            await _bookmarkService.UnbookmarkAsync(
                 userId,
                 tweetId,
                 cancellationToken);
 
-            return Ok(result);
+            return Ok();
         }
 
         [HttpGet("{tweetId}/bookmark")]
@@ -63,6 +61,7 @@ namespace SocialX.Api.Controllers
 
             return Ok(isBookmarked);
         }
+
         [HttpGet("me/bookmarks")]
         public async Task<IActionResult> GetMyBookmarks(
             [FromQuery] int pageNumber = 1,
@@ -70,12 +69,14 @@ namespace SocialX.Api.Controllers
             CancellationToken cancellationToken = default)
         {
             var userId = User.GetUserId();
-            var result = await _bookmarkService.GetUserBookmarksAsync(userId, pageNumber, pageSize, cancellationToken);
 
-            if (!result.Success)
-                return BadRequest(result);
+            var result = await _bookmarkService.GetUserBookmarksAsync(
+                userId,
+                pageNumber,
+                pageSize,
+                cancellationToken);
 
-            return Ok(result.Data);  
+            return Ok(result);
         }
     }
 }

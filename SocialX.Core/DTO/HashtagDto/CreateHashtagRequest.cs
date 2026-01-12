@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocialX.Core.Enumuration
+namespace SocialX.Core.DTO.HashtagDto
 {
-    public enum MediaType
+    public class CreateHashtagRequest
     {
-        Image,
-        Video,
-        Gif,
-        File,
+        public string Name { get; set; }
     }
 }

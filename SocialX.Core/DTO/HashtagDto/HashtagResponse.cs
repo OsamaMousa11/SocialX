@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocialX.Core.Domain.Entites
+namespace SocialX.Core.DTO.HashtagDto
 {
-    public class Hashtag
+    public class HashtagResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        
-        public ICollection<TweetHashtag>? TweetHashtags { get; set; }
+        public int Count { get; set; }
+        public DateTime CreatedAt { get; set;
+        }
     }
-
 }

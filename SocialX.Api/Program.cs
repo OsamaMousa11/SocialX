@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
-using SocialX.Api;
+using SocialX.Api.Extensions;
 using SocialX.Api.Middlewares;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,7 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();

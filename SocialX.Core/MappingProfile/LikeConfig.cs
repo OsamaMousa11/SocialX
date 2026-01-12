@@ -16,7 +16,7 @@ namespace SocialX.Core.MappingProfile
             CreateMap<Like, LikeResponse>();
 
 
-            CreateMap<Like, LikedUserResponse>()
+            CreateMap<Like, LikeResponse>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
                 .ForMember(dest => dest.NickName, opt => opt.MapFrom(src => src.User.Profile != null ? src.User.Profile.NickName : src.User.Name))
                 .ForMember(dest => dest.ProfileImageUrl, opt => opt.MapFrom(src => src.User.Profile != null ? src.User.Profile.ProfileImageUrl : null));

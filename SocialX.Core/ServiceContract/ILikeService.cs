@@ -10,29 +10,23 @@ namespace SocialX.Core.ServiceContract
 {
     public interface ILikeService
     {
-        Task<ApiResponse<bool>> LikeTweetAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
-        Task<ApiResponse<bool>> UnlikeTweetAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
+        Task LikeTweetAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
+        Task UnlikeTweetAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
 
-        Task<ApiResponse<bool>> LikeCommentAsync(Guid userId, Guid commentId, CancellationToken cancellationToken = default);
-        Task<ApiResponse<bool>> UnlikeCommentAsync(Guid userId, Guid commentId, CancellationToken cancellationToken = default);
-
+        Task LikeCommentAsync(Guid userId, Guid commentId, CancellationToken cancellationToken = default);
+        Task UnlikeCommentAsync(Guid userId, Guid commentId, CancellationToken cancellationToken = default);
 
         Task<bool> IsLikedTweetAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
         Task<bool> IsLikedCommentAsync(Guid userId, Guid commentId, CancellationToken cancellationToken = default);
 
-        Task<ApiResponse<PaginatedResult<LikedUserResponse>>> GetTweetLikesAsync(
-    Guid tweetId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        Task<PaginatedResult<LikeResponse>> GetTweetLikesAsync(
+            Guid tweetId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
-        Task<ApiResponse<PaginatedResult<LikedUserResponse>>> GetCommentLikesAsync(
+        Task<PaginatedResult<LikeResponse>> GetCommentLikesAsync(
             Guid commentId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
-        Task<ApiResponse<int>> GetTweetLikesCountAsync(
-            Guid tweetId,
-            CancellationToken cancellationToken = default);
-    Task<ApiResponse<int>> GetCommentLikesCountAsync(
-           Guid commentId,
-           CancellationToken cancellationToken = default);
-
-
+        Task<int> GetTweetLikesCountAsync(Guid tweetId, CancellationToken cancellationToken = default);
+        Task<int> GetCommentLikesCountAsync(Guid commentId, CancellationToken cancellationToken = default);
     }
+
 }

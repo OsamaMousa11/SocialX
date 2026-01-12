@@ -9,9 +9,8 @@ namespace SocialX.Core.DTO.LikeDto
     public class LikeResponse
     {
         public Guid UserId { get; set; }
-        public Guid? TweetId { get; set; }
-        public Guid? CommentId { get; set; }
-        public DateTime CreatedAt { get; set; }
-
+        public string UserName { get; set; } = string.Empty;
+        public string NickName { get; set; } = string.Empty;
+        public string? ProfileImageUrl { get; set; }
     }
 }

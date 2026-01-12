@@ -10,30 +10,16 @@ namespace SocialX.Core.ServiceContract
 {
     public interface IBookmarkService
     {
-   
-        Task<ApiResponse<bool>> BookmarkAsync(
+        Task BookmarkAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
+        Task UnbookmarkAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
+        Task<bool> IsBookmarkedAsync(Guid userId, Guid tweetId, CancellationToken cancellationToken = default);
+
+        Task<PaginatedResult<TweetResponse>> GetUserBookmarksAsync(
             Guid userId,
-            Guid tweetId,
+            int pageNumber,
+            int pageSize,
             CancellationToken cancellationToken = default);
-
-        
-        Task<ApiResponse<bool>> UnbookmarkAsync(
-            Guid userId,
-            Guid tweetId,
-            CancellationToken cancellationToken = default);
-
-   
-        Task<bool> IsBookmarkedAsync(
-            Guid userId,
-            Guid tweetId,
-            CancellationToken cancellationToken = default);
-
-        Task<ApiResponse<PaginatedResult<TweetResponse>>> GetUserBookmarksAsync(
-    Guid userId,
-    int pageNumber,
-    int pageSize,
-    CancellationToken cancellationToken = default);
-
     }
+
 }
 

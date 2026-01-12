@@ -4,17 +4,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using SocialX.Api.Middlewares;
+using SocialX.Application.FileService;
+
 using SocialX.Core.Domain.IdentityEntites;
 using SocialX.Core.DTO.AuthenticationDTO;
 using SocialX.Core.Service;
 using SocialX.Core.ServiceContract;
+using SocialX.Core.Settings;
 using SocialX.Core.storeCore.Domain.IdentityEntites;
 using SocialX.Infrastructure.Data;
 using System;
 using System.Text;
-namespace SocialX.Api
+namespace SocialX.Api.Extensions
 {
     public static class ConfigureServiceExtension
     {
@@ -72,7 +73,8 @@ namespace SocialX.Api
                 });
             });
 
-            
+            Services.Configure<FileSettings>(Configuration.GetSection("FileSettings"));
+            Services.AddScoped<IFileService, FileService>();
             Services.Configure<JwtDTO>(Configuration.GetSection("JWT"));
             Services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             Services.AddTransient<IMailingService, MailingService>();
