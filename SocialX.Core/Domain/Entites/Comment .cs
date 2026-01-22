@@ -24,6 +24,8 @@ namespace SocialX.Core.Domain.Entites
 
         public ICollection<Attachment> ? Attachments { get; set; }
         public ICollection<Like>? Likes { get; set; }
+
+        public ICollection<Mention>? Mentions { get; set; }
     }
 
 }

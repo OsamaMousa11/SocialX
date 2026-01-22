@@ -12,6 +12,9 @@ namespace SocialX.Core.Domain.Entites
         public Guid TweetId { get; set; }
         public Tweet Tweet { get; set; }
 
+        public Guid? CommentId { get; set; }
+        public Comment? Comment { get; set; }
+
         public Guid MentionedUserId { get; set; }
         public ApplicationUser MentionedUser { get; set; }
 

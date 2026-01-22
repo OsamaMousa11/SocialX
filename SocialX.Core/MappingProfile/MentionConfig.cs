@@ -20,7 +20,7 @@ namespace SocialX.Core.MappingProfile
              .ForMember(dest => dest.AuthorUserName,
                  opt => opt.MapFrom(src => src.User.UserName))
              .ForMember(dest => dest.AuthorNickName,
-                 opt => opt.MapFrom(src => src.User.Profile != null ? src.User.Profile.NickName : src.User.Name))
+                 opt => opt.MapFrom(src => src.User.Profile != null ? src.User.Profile.NickName : src.User.UserName))
              .ForMember(dest => dest.AuthorProfileImageUrl,
                  opt => opt.MapFrom(src => src.User.Profile != null ? src.User.Profile.ProfileImageUrl : null))
              .ForMember(dest => dest.LikesCount,

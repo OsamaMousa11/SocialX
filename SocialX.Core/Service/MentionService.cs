@@ -26,7 +26,7 @@ namespace SocialX.Application.Services
             _logger = logger;
         }
 
-        public async Task<ApiResponse<bool>> CreateMentionsFromContentAsync(
+        public async Task<bool> CreateMentionsFromContentAsync(
             Guid contentId,  
             string content,
             bool isTweet = true,  
@@ -34,17 +34,13 @@ namespace SocialX.Application.Services
         {
             var usernames = MentionHelper.ExtractUsernames(content).Distinct().ToList(); 
 
-            if (!usernames.Any())
-                return ApiResponse<bool>.SuccessResponse(true);
+          
 
             
             var users = await _unitOfWork.Repository<ApplicationUser>()
                 .FindAllAsync(u => usernames.Contains(u.UserName!), cancellationToken: cancellationToken);
 
-            if (!users.Any())
-                return ApiResponse<bool>.SuccessResponse(true);
-
-           
+          
             var existingMentions = await _unitOfWork.Repository<Mention>()
                 .FindAllAsync(m => m.TweetId == contentId && users.Select(u => u.Id).Contains(m.MentionedUserId),
                     cancellationToken: cancellationToken);
@@ -67,7 +63,7 @@ namespace SocialX.Application.Services
                 _logger.LogInformation("Created {Count} new mentions for content {ContentId}", newMentions.Count, contentId);
             }
 
-            return ApiResponse<bool>.SuccessResponse(true);
+            return true;
         }
     }
 }

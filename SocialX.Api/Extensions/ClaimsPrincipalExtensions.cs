@@ -7,7 +7,7 @@ namespace SocialX.Api.Extensions
     {
         public static Guid GetUserId(this ClaimsPrincipal user)
         {
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = user.FindFirst("uid");
 
             if (userIdClaim == null)
                 throw new UnauthorizedAccessException("UserId claim not found");

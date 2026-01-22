@@ -3,15 +3,21 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+
 using Microsoft.IdentityModel.Tokens;
 using SocialX.Application.FileService;
-
+using SocialX.Application.Services;
 using SocialX.Core.Domain.IdentityEntites;
 using SocialX.Core.DTO.AuthenticationDTO;
+using SocialX.Core.IUnitofWork;
+using SocialX.Core.MappingProfile;
 using SocialX.Core.Service;
 using SocialX.Core.ServiceContract;
 using SocialX.Core.Settings;
 using SocialX.Core.storeCore.Domain.IdentityEntites;
+using SocialX.infrastraction.IRepositoryContract;
+using SocialX.infrastraction.Repositories;
+using SocialX.infrastraction.UnitofWork;
 using SocialX.Infrastructure.Data;
 using System;
 using System.Text;
@@ -79,9 +85,17 @@ namespace SocialX.Api.Extensions
             Services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
             Services.AddTransient<IMailingService, MailingService>();
             Services.AddScoped<IAuthenticationServices, AuthenticationServices>();
-          //  Services.AddScoped<IUnitOfWork, UnitOfWork>();
-          //  Services.AddScoped(typeof(IGenericRepository<>), typeof(GenricRepository<>));
-            
+           Services.AddScoped<IUnitOfWork, UnitOfWork>();
+           Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            Services.AddScoped<ITweetService, TweetService>();
+            Services.AddScoped<IHashtagService, HashtagService>();
+            Services.AddScoped<IBookmarkService, BookMarkService>();
+            Services.AddScoped<IMentionService, MentionService>();
+            Services.AddScoped<ICommentService, CommentService>();
+            Services.AddScoped<ILikeService, LikeService>();
+
+
+
 
 
 
@@ -91,7 +105,7 @@ namespace SocialX.Api.Extensions
            options.JsonSerializerOptions.ReferenceHandler =
                System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
        });
-         //   Services.AddAutoMapper(typeof(CategoryConfig).Assembly);
+            Services.AddAutoMapper(typeof(TweetConfig).Assembly);
             Services.AddControllers();
            
             Services.AddEndpointsApiExplorer();
@@ -99,9 +113,9 @@ namespace SocialX.Api.Extensions
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "SolidHardware API",
+                    Title = "SocialX API",
                     Version = "v1",
-                    Description = "SolidHardware Store API"
+                    Description = "SocialX"
                 });
 
 

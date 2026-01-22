@@ -9,7 +9,7 @@ namespace SocialX.Core.ServiceContract
     public interface IMentionService
     {
 
-        Task<ApiResponse<bool>> CreateMentionsFromContentAsync(
+        Task<bool> CreateMentionsFromContentAsync(
                     Guid contentId,
                     string content,
                     bool isTweet = true,

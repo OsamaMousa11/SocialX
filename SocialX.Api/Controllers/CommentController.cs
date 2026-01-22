@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialX.Api.Extensions;
 using SocialX.Core.DTO.CommentDto;
-using SocialX.Core.DTO.Common;
 using SocialX.Core.ServiceContract;
-using System.Security.Claims;
 
 namespace SocialX.API.Controllers
 {
@@ -19,104 +18,50 @@ namespace SocialX.API.Controllers
             _commentService = commentService;
         }
 
-      
-        [HttpGet("tweet/{tweetId}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<PaginatedResult<CommentResponse>>> GetTweetComments(
-            Guid tweetId,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10,
-            CancellationToken cancellationToken = default)
-        {
-            var userId = GetCurrentUserId();
-
-            var result = await _commentService.GetTweetCommentsAsync(
-                userId, tweetId, pageNumber, pageSize, cancellationToken);
-
-            return Ok(result);
-        }
-
-       
-        [HttpGet("{commentId}/replies")]
-        [AllowAnonymous]
-        public async Task<ActionResult<PaginatedResult<CommentResponse>>> GetCommentReplies(
-            Guid commentId,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10,
-            CancellationToken cancellationToken = default)
-        {
-            var userId = GetCurrentUserId();
-
-            var result = await _commentService.GetCommentRepliesAsync(
-                userId, commentId, pageNumber, pageSize, cancellationToken);
-
-            return Ok(result);
-        }
-
-        
-        [HttpGet("{commentId}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<CommentDetailsResponse>> GetCommentById(
-            Guid commentId,
-            CancellationToken cancellationToken = default)
-        {
-            var userId = GetCurrentUserId();
-
-            var comment = await _commentService.GetCommentByIdAsync(
-                userId, commentId, cancellationToken);
-
-            return Ok(comment);
-        }
-
-       
+        // POST
         [HttpPost]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<CommentResponse>> AddComment(
+        public async Task<ActionResult<CommentResponse>> Add(
             [FromForm] CommentAddRequest request,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
-            var userId = GetCurrentUserIdOrThrow();
+            var userId = User.GetUserId();
 
-            var comment = await _commentService.AddCommentAsync(
+            var result = await _commentService.AddCommentAsync(
                 userId, request, cancellationToken);
 
-            return CreatedAtAction(
-                nameof(GetCommentById),
-                new { commentId = comment.Id },
-                comment);
+            return Ok(result);
         }
 
-       
-        [HttpDelete("{commentId}")]
-        public async Task<IActionResult> DeleteComment(
+        // GET BY ID
+        [HttpGet("{commentId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<CommentResponse>> GetById(
             Guid commentId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
-            var userId = GetCurrentUserIdOrThrow();
+            Guid? userId = User.Identity?.IsAuthenticated == true
+                ? User.GetUserId()
+                : null;
+
+            var result = await _commentService.GetCommentByIdAsync(
+                userId, commentId, cancellationToken);
+
+            return Ok(result);
+        }
+
+        // DELETE
+        [HttpDelete("{commentId}")]
+        public async Task<IActionResult> Delete(
+            Guid commentId,
+            CancellationToken cancellationToken)
+        {
+            var userId = User.GetUserId();
 
             await _commentService.DeleteCommentAsync(
                 userId, commentId, cancellationToken);
 
             return NoContent();
-        }
-
-
-        private Guid? GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
-                return userId;
-
-            return null;
-        }
-
-        private Guid GetCurrentUserIdOrThrow()
-        {
-            var userId = GetCurrentUserId();
-            if (!userId.HasValue)
-                throw new UnauthorizedAccessException("User is not authenticated");
-
-            return userId.Value;
         }
     }
 }

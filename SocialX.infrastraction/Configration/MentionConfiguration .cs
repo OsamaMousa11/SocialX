@@ -30,6 +30,11 @@ namespace SocialX.infrastraction.Configration
                    .HasForeignKey(m => m.MentionedUserId)
                    .OnDelete(DeleteBehavior.NoAction);
 
+            builder.HasOne(m => m.Comment)
+                   .WithMany(c => c.Mentions)
+                   .HasForeignKey(m => m.CommentId)
+                  .OnDelete(DeleteBehavior.NoAction);
+
             builder.HasIndex(m => m.CreatedAt);
             builder.ToTable("Mentions");
         }

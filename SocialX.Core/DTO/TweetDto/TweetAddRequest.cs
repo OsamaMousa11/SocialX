@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using SocialX.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,13 +11,13 @@ namespace SocialX.Core.DTO.TweetDto
 {
     public class TweetAddRequest
     {
-      [Required(ErrorMessage = "Content is required")]
+        [Required(ErrorMessage = "Content is required")]
 
-      [StringLength(280, ErrorMessage = "Content length can't be more than 280 characters.")]
+        [StringLength(280, ErrorMessage = "Content length can't be more than 280 characters.")]
         public string Content { get; set; }
 
-      //  [MaxFileSize(5 * 1024 * 1024)] // 5MB max
-//[AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov" })]
+        [MaxFileSize(5 * 1024 * 1024)]
+        [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov" })]
         public List<IFormFile>? AttachmentFiles { get; set; }
 
         public List<string>? Hashtags { get; set; }
@@ -24,6 +25,8 @@ namespace SocialX.Core.DTO.TweetDto
 
         public List<Guid>? MentionedUserIds { get; set; }
 
+       }
+
 
     }
-}
+

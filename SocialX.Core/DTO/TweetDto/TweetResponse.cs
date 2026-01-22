@@ -31,14 +31,13 @@ namespace SocialX.Core.DTO.TweetDto
         public bool IsRetweetedByCurrentUser { get; set; }
         public bool IsBookmarkedByCurrentUser { get; set; }
 
-      
+
         public List<AttachmentResponse> Attachments { get; set; } = new();
 
         public List<string> Hashtags { get; set; } = new();
 
         public List<MentionResponse> Mentions { get; set; } = new();
 
-  
-        public TweetResponse? OriginalTweet { get; set; } // recursive لو quote
+        public TweetResponse? OriginalTweet { get; set; } 
     }
 }

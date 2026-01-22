@@ -14,7 +14,7 @@ namespace SocialX.Core.DTO.TweetDto
         [StringLength(280, ErrorMessage = "Content length can't be more than 280 characters.")]
         public string Content { get; set; } = string.Empty;
 
-   
+       
         public List<IFormFile>? NewMediaFiles { get; set; }
 
         public List<Guid>? MediaIdsToRemove { get; set; }

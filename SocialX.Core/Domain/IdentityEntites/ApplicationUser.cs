@@ -7,9 +7,9 @@ namespace SocialX.Core.storeCore.Domain.IdentityEntites
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
-        public string Name { get; set; }
+     
 
-   
+       
         public Profile Profile { get; set; }
 
       

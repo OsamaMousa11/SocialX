@@ -1,188 +1,98 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using SocialX.Core.Domain.Entites;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SocialX.Core.DTO.Common;
 using SocialX.Core.DTO.HashtagDto;
-using SocialX.Core.Exceptions;
-using SocialX.Core.IUnitofWork;
 using SocialX.Core.ServiceContract;
 
-namespace SocialX.Core.Service
+namespace SocialX.API.Controllers
 {
-    public class HashtagService : IHashtagService
+    [ApiController]
+    [Route("api/hashtags")]
+    public class HashtagsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly ILogger<HashtagService> _logger;
+        private readonly IHashtagService _hashtagService;
 
-        public HashtagService(
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            ILogger<HashtagService> logger)
+        public HashtagsController(IHashtagService hashtagService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
+            _hashtagService = hashtagService;
         }
 
-        // =========================
-        // CREATE
-        // =========================
-        public async Task<HashtagResponse> CreateHashtagAsync(
-            string tagName,
-            CancellationToken cancellationToken = default)
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(
+            [FromBody] CreateHashtagRequest request,
+            CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(tagName))
-                throw new BadRequestException("Hashtag name is required");
+            var result = await _hashtagService.CreateHashtagAsync(
+                request.Name,
+                cancellationToken);
 
-            var normalizedName = Normalize(tagName);
-
-            var existing = await _unitOfWork.Repository<Hashtag>()
-                .FindAsync(h => h.Name == normalizedName, cancellationToken: cancellationToken);
-
-            if (existing != null)
-                return MapToResponse(existing);
-
-            var hashtag = new Hashtag
-            {
-                Id = Guid.NewGuid(),
-                Name = normalizedName
-            };
-
-            await _unitOfWork.Repository<Hashtag>()
-                .AddAsync(hashtag, cancellationToken);
-
-            await _unitOfWork.CompleteAsync(cancellationToken);
-
-            _logger.LogInformation("Hashtag {Name} created", normalizedName);
-
-            return MapToResponse(hashtag);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { hashtagId = result.Id },
+                result);
         }
 
-        // =========================
-        // GET BY ID
-        // =========================
-        public async Task<HashtagResponse> GetHashtagByIdAsync(
+       
+
+        [HttpGet("{hashtagId:guid}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetById(
             Guid hashtagId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
-            if (hashtagId == Guid.Empty)
-                throw new BadRequestException("Invalid hashtag id");
+            var result = await _hashtagService.GetHashtagByIdAsync(
+                hashtagId,
+                cancellationToken);
 
-            var hashtag = await _unitOfWork.Repository<Hashtag>()
-                .FindAsync(
-                    h => h.Id == hashtagId,
-                    includeProperties: "TweetHashtags",
-                    cancellationToken: cancellationToken);
-
-            if (hashtag == null)
-                throw new NotFoundException("Hashtag not found");
-
-            return MapToResponse(hashtag);
+            return Ok(result);
         }
 
-        // =========================
-        // GET BY NAME
-        // =========================
-        public async Task<HashtagResponse> GetHashtagByNameAsync(
+     
+        [HttpGet("name/{tagName}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetByName(
             string tagName,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(tagName))
-                throw new BadRequestException("Hashtag name is required");
+            var result = await _hashtagService.GetHashtagByNameAsync(
+                tagName,
+                cancellationToken);
 
-            var normalizedName = Normalize(tagName);
-
-            var hashtag = await _unitOfWork.Repository<Hashtag>()
-                .FindAsync(
-                    h => h.Name == normalizedName,
-                    includeProperties: "TweetHashtags",
-                    cancellationToken: cancellationToken);
-
-            if (hashtag == null)
-                throw new NotFoundException("Hashtag not found");
-
-            return MapToResponse(hashtag);
+            return Ok(result);
         }
 
-        // =========================
-        // SEARCH
-        // =========================
-        public async Task<PaginatedResult<HashtagResponse>> SearchHashtagsAsync(
-            string searchTerm,
-            int pageNumber,
-            int pageSize,
+ 
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search(
+            [FromQuery] string term,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
             CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-                throw new BadRequestException("Search term is required");
-
-            if (pageNumber < 1 || pageSize < 1)
-                throw new BadRequestException("Invalid pagination");
-
-            var term = searchTerm.Trim().ToLower();
-
-            var totalCount = await _unitOfWork.Repository<Hashtag>()
-                .CountAsync(h => h.Name.ToLower().Contains(term), cancellationToken);
-
-            var hashtags = await _unitOfWork.Repository<Hashtag>()
-                .GetPagedAsync(
-                    pageNumber,
-                    pageSize,
-                    predicate: h => h.Name.ToLower().Contains(term),
-                    orderBy: q => q.OrderByDescending(h => h.TweetHashtags.Count),
-                    includeProperties: "TweetHashtags",
-                    cancellationToken: cancellationToken);
-
-            var responses = hashtags
-                .Select(MapToResponse)
-                .ToList();
-
-            return new PaginatedResult<HashtagResponse>(
-                responses,
-                totalCount,
+            var result = await _hashtagService.SearchHashtagsAsync(
+                term,
                 pageNumber,
-                pageSize);
+                pageSize,
+                cancellationToken);
+
+            return Ok(result);
         }
 
-        // =========================
-        // DELETE
-        // =========================
-        public async Task<bool> DeleteHashtagAsync(
+
+        [HttpDelete("{hashtagId:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(
             Guid hashtagId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
-            if (hashtagId == Guid.Empty)
-                throw new BadRequestException("Invalid hashtag id");
+            await _hashtagService.DeleteHashtagAsync(
+                hashtagId,
+                cancellationToken);
 
-            var hashtag = await _unitOfWork.Repository<Hashtag>()
-                .FindAsync(h => h.Id == hashtagId, cancellationToken: cancellationToken);
-
-            if (hashtag == null)
-                throw new NotFoundException("Hashtag not found");
-
-            _unitOfWork.Repository<Hashtag>().Delete(hashtag);
-            await _unitOfWork.CompleteAsync(cancellationToken);
-
-            _logger.LogInformation("Hashtag {Id} deleted", hashtagId);
-
-            return true;
-        }
-
-        private static string Normalize(string tag)
-        {
-            tag = tag.Trim();
-            return tag.StartsWith("#") ? tag.Substring(1) : tag;
-        }
-
-        private static HashtagResponse MapToResponse(Hashtag hashtag)
-        {
-            return new HashtagResponse
-            {
-                Id = hashtag.Id,
-                Name = hashtag.Name,
-                Count = hashtag.TweetHashtags?.Count ?? 0
-            };
+            return Ok(new { message = "Hashtag deleted successfully" });
         }
     }
 }
