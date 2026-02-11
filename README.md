@@ -88,7 +88,4 @@ This project demonstrates:
 
 ---
 
-# 👨‍💻 Author
-
-Osama Mousa  
-Backend Engineer (.NET)
+<img width="804" height="504" alt="image" src="https://github.com/user-attachments/assets/b0fb2e82-5f42-458a-94c9-cf438f2c3c3c" />
