@@ -1,4 +1,4 @@
-# 🚀 SocialX – Scalable Social Media Backend (ASP.NET Core)
+# 🚀 SocialX 
 
 SocialX is a scalable and production-ready social media backend built using ASP.NET Core, following Clean Architecture & Onion Architecture principles.
 
