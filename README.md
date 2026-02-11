@@ -79,13 +79,6 @@ This project demonstrates:
 
 ---
 
-# 📌 Status
 
-- Fully functional backend
-- Real-time notifications working
-- JWT secured SignalR
-- Ready for frontend integration
-
----
 
 <img width="804" height="504" alt="image" src="https://github.com/user-attachments/assets/b0fb2e82-5f42-458a-94c9-cf438f2c3c3c" />
