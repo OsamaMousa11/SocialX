@@ -12,7 +12,7 @@ namespace SocialX.Api.Controllers
 {
     [ApiController]
     [Route("api/tweets")]
-    [Authorize] // كل الـ endpoints محتاجة login
+    [Authorize] 
     public class TweetsController : ControllerBase
     {
         private readonly ITweetService _tweetService;
@@ -33,7 +33,7 @@ namespace SocialX.Api.Controllers
 
             var result = await _tweetService.AddTweetAsync(userId, request, cancellationToken);
 
-            return Ok(result); // using ApiResponse extension
+            return Ok(result); 
         }
 
        
@@ -51,9 +51,35 @@ namespace SocialX.Api.Controllers
               return Ok(result);
         }
 
-        /// <summary>
-        /// Delete a tweet (soft delete)
-        /// </summary>
+        [ApiController]
+        [Route("api/users")]
+        public class UsersController : ControllerBase
+        {
+            private readonly ITweetService _tweetService;
+
+            public UsersController(ITweetService tweetService)
+            {
+                _tweetService = tweetService;
+            }
+
+            [HttpGet("{userId}/tweets")]
+            public async Task<IActionResult> GetUserTweets(
+                Guid userId,
+                int pageNumber = 1,
+                int pageSize = 10,
+                CancellationToken cancellationToken = default)
+            {
+                var result = await _tweetService.GetTweetsByUserIdAsync(
+                    userId,
+                    pageNumber,
+                    pageSize,
+                    cancellationToken);
+
+                return Ok(result);
+            }
+        }
+
+        
         [HttpDelete("{tweetId}")]
         public async Task<IActionResult> DeleteTweet(
             Guid tweetId,

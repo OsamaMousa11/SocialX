@@ -7,22 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\ConversationDto\" />
-    <Folder Include="DTO\ConversationParticipantDto\" />
-    <Folder Include="DTO\FollowDto\" />
-    <Folder Include="DTO\MessageDto\" />
-    <Folder Include="DTO\NotificationDto\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Domain\IRepositoryContract\IProfileRepository.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.5" />

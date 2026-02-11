@@ -24,5 +24,7 @@ namespace SocialX.Core.ServiceContract
         Task<ProfileResponse> GetMyProfileAsync(
               Guid userId,
               CancellationToken cancellationToken = default);
+
+        Task DeleteMyProfileAsync(Guid userId);
     }
 }

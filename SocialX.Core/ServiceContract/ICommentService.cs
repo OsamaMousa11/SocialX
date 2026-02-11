@@ -5,25 +5,32 @@ namespace SocialX.Core.ServiceContract
 {
     public interface ICommentService
     {
-        /// <summary>
-        /// Add new comment to a tweet (or reply to another comment)
-        /// </summary>
         Task<CommentResponse> AddCommentAsync(
             Guid userId,
             CommentAddRequest request,
             CancellationToken cancellationToken = default);
 
-        /// <summary>
-        /// Get comment by id (with attachments, mentions, likes, replies count)
-        /// </summary>
-        Task<CommentResponse> GetCommentByIdAsync(
-            Guid? currentUserId,
-            Guid commentId,
-            CancellationToken cancellationToken = default);
+    
+            Task<CommentResponse> GetCommentByIdAsync(
+                Guid? currentUserId,
+                Guid commentId,
+                CancellationToken cancellationToken = default);
 
-        /// <summary>
-        /// Delete comment (soft delete)
-        /// </summary>
+    
+                    Task<PaginatedResult<CommentResponse>> GetCommentsByTweetIdAsync(
+                Guid? currentUserId,
+                Guid tweetId,
+                int pageNumber,
+                int pageSize,
+                CancellationToken cancellationToken = default);
+
+        Task<CommentResponse> UpdateCommentAsync(
+    Guid userId,
+    Guid commentId,
+    CommentUpdateRequest request,
+    CancellationToken cancellationToken = default);
+
+
         Task DeleteCommentAsync(
             Guid userId,
             Guid commentId,

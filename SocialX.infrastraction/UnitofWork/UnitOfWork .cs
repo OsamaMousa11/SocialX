@@ -41,30 +41,40 @@ namespace SocialX.infrastraction.UnitofWork
             return (IGenericRepository<T>)_repositories[type]!;
         }
 
-        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+  
+      
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.Database.BeginTransactionAsync(cancellationToken);
-            
+            if (_transaction != null)
+                return;
+
+            _transaction = await _context.Database
+                .BeginTransactionAsync(cancellationToken);
         }
+
 
         public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
         {
-            if (_transaction != null)
-            {
-                await _transaction.CommitAsync(cancellationToken);
-                await _transaction.DisposeAsync();
-                _transaction = null;
-            }
+            if (_transaction == null)
+                return;
+
+            await _context.SaveChangesAsync(cancellationToken);
+            await _transaction.CommitAsync(cancellationToken);
+            await _transaction.DisposeAsync();
+
+            _transaction = null;
         }
 
+    
         public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
         {
-            if (_transaction != null)
-            {
-                await _transaction.RollbackAsync(cancellationToken);
-                await _transaction.DisposeAsync();
-                _transaction = null;
-            }
+            if (_transaction == null)
+                return;
+
+            await _transaction.RollbackAsync(cancellationToken);
+            await _transaction.DisposeAsync();
+
+            _transaction = null;
         }
 
         public async Task<int> CompleteAsync(CancellationToken cancellationToken = default)
@@ -77,5 +87,8 @@ namespace SocialX.infrastraction.UnitofWork
             _transaction?.Dispose();
             _context.Dispose();
         }
+
+      
     }
+
 }

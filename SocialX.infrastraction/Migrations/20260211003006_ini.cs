@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SocialX.infrastraction.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class ini : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,23 +48,6 @@ namespace SocialX.infrastraction.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Conversations",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LastMessageAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Conversations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -251,8 +234,8 @@ namespace SocialX.infrastraction.Migrations
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProfileImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProfileBackgroundImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
                 },
@@ -334,65 +317,6 @@ namespace SocialX.infrastraction.Migrations
                         name: "FK_UserConnections_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ConversationParticipants",
-                columns: table => new
-                {
-                    ConversationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    JoinedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    LeftAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    LastReadMessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConversationParticipants", x => new { x.ConversationId, x.UserId });
-                    table.ForeignKey(
-                        name: "FK_ConversationParticipants_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ConversationParticipants_Conversations_ConversationId",
-                        column: x => x.ConversationId,
-                        principalTable: "Conversations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Messages",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    ConversationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Messages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Messages_AspNetUsers_SenderId",
-                        column: x => x.SenderId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Messages_Conversations_ConversationId",
-                        column: x => x.ConversationId,
-                        principalTable: "Conversations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -505,11 +429,6 @@ namespace SocialX.infrastraction.Migrations
                         name: "FK_Attachments_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Attachments_Messages_MessageId",
-                        column: x => x.MessageId,
-                        principalTable: "Messages",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Attachments_Tweets_TweetId",
@@ -700,41 +619,6 @@ namespace SocialX.infrastraction.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConversationParticipants_ConversationId",
-                table: "ConversationParticipants",
-                column: "ConversationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConversationParticipants_IsActive",
-                table: "ConversationParticipants",
-                column: "IsActive");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConversationParticipants_UserId",
-                table: "ConversationParticipants",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConversationParticipants_UserId_IsActive",
-                table: "ConversationParticipants",
-                columns: new[] { "UserId", "IsActive" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Conversations_CreatedAt",
-                table: "Conversations",
-                column: "CreatedAt");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Conversations_IsDeleted",
-                table: "Conversations",
-                column: "IsDeleted");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Conversations_LastMessageAt",
-                table: "Conversations",
-                column: "LastMessageAt");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Follows_FollowingId",
                 table: "Follows",
                 column: "FollowingId");
@@ -773,36 +657,6 @@ namespace SocialX.infrastraction.Migrations
                 name: "IX_Mentions_MentionedUserId",
                 table: "Mentions",
                 column: "MentionedUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_ConversationId",
-                table: "Messages",
-                column: "ConversationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_ConversationId_CreatedAt",
-                table: "Messages",
-                columns: new[] { "ConversationId", "CreatedAt" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_CreatedAt",
-                table: "Messages",
-                column: "CreatedAt");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_IsDeleted",
-                table: "Messages",
-                column: "IsDeleted");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_IsRead",
-                table: "Messages",
-                column: "IsRead");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_SenderId",
-                table: "Messages",
-                column: "SenderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_ActorUserId",
@@ -896,9 +750,6 @@ namespace SocialX.infrastraction.Migrations
                 name: "Bookmarks");
 
             migrationBuilder.DropTable(
-                name: "ConversationParticipants");
-
-            migrationBuilder.DropTable(
                 name: "Follows");
 
             migrationBuilder.DropTable(
@@ -926,16 +777,10 @@ namespace SocialX.infrastraction.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Messages");
-
-            migrationBuilder.DropTable(
                 name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Hashtags");
-
-            migrationBuilder.DropTable(
-                name: "Conversations");
 
             migrationBuilder.DropTable(
                 name: "Tweets");

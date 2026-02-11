@@ -38,20 +38,8 @@ public class LikeController : ControllerBase
         return Ok(await _likeService.IsLikedTweetAsync(userId, tweetId, ct));
     }
 
-    [HttpGet("tweets/{tweetId}/likes")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetTweetLikes(
-        Guid tweetId, int pageNumber = 1, int pageSize = 20, CancellationToken ct = default)
-    {
-        return Ok(await _likeService.GetTweetLikesAsync(tweetId, pageNumber, pageSize, ct));
-    }
 
-    [HttpGet("tweets/{tweetId}/likes/count")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetTweetLikesCount(Guid tweetId, CancellationToken ct)
-    {
-        return Ok(await _likeService.GetTweetLikesCountAsync(tweetId, ct));
-    }
+
 
     [HttpPost("comments/{commentId}/like")]
     public async Task<IActionResult> LikeComment(Guid commentId, CancellationToken ct)
@@ -76,18 +64,5 @@ public class LikeController : ControllerBase
         return Ok(await _likeService.IsLikedCommentAsync(userId, commentId, ct));
     }
 
-    [HttpGet("comments/{commentId}/likes")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetCommentLikes(
-        Guid commentId, int pageNumber = 1, int pageSize = 20, CancellationToken ct = default)
-    {
-        return Ok(await _likeService.GetCommentLikesAsync(commentId, pageNumber, pageSize, ct));
-    }
 
-    [HttpGet("comments/{commentId}/likes/count")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetCommentLikesCount(Guid commentId, CancellationToken ct)
-    {
-        return Ok(await _likeService.GetCommentLikesCountAsync(commentId, ct));
-    }
 }

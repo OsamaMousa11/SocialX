@@ -32,6 +32,46 @@ namespace SocialX.API.Controllers
 
             return Ok(result);
         }
+        
+        [HttpPut("{commentId}")]
+        public async Task<IActionResult> UpdateComment(
+    Guid commentId,
+    [FromBody] CommentUpdateRequest request,
+    CancellationToken cancellationToken)
+        {
+            var userId = User.GetUserId();
+
+            var result = await _commentService.UpdateCommentAsync(
+                userId,
+                commentId,
+                request,
+                cancellationToken);
+
+            return Ok(result);
+        }
+
+
+        [HttpGet("/api/tweets/{tweetId}/comments")]
+        public async Task<IActionResult> GetCommentsByTweetId(
+    Guid tweetId,
+    int pageNumber = 1,
+    int pageSize = 10,
+    CancellationToken cancellationToken = default)
+        {
+            Guid? currentUserId = null;
+
+            if (User.Identity.IsAuthenticated)
+                currentUserId = User.GetUserId();
+
+            var result = await _commentService.GetCommentsByTweetIdAsync(
+                currentUserId,
+                tweetId,
+                pageNumber,
+                pageSize,
+                cancellationToken);
+
+            return Ok(result);
+        }
 
         // GET BY ID
         [HttpGet("{commentId}")]

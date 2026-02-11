@@ -25,13 +25,9 @@ namespace SocialX.Infrastructure.Data
 
         public DbSet<Follow> Follows => Set<Follow>();
 
-       public DbSet<Message> Messages => Set<Message>();
+    
 
         public DbSet <Bookmark>Bookmarks => Set<Bookmark>();
-
-        public DbSet<Conversation> Conversations => Set<Conversation>();
-
-        public DbSet<ConversationParticipant> ConversationParticipants => Set<ConversationParticipant>();
 
         public DbSet<Hashtag> Hashtags => Set<Hashtag>();
 

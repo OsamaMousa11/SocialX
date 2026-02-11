@@ -21,7 +21,7 @@ namespace SocialX.Core.Domain.Entites
         public Comment? Comment { get; set; }
 
         public Guid? MessageId { get; set; }
-        public Message? Message { get; set; }
+     
     }
 
 }

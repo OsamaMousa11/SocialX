@@ -5,9 +5,11 @@ using SocialX.Core.DTO.ProfileDto;
 using SocialX.Core.Exceptions;
 using SocialX.Core.IUnitofWork;
 using SocialX.Core.ServiceContract;
+using SocialX.Core.storeCore.Domain.IdentityEntites;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SocialX.Core.Service
 {
@@ -30,83 +32,155 @@ namespace SocialX.Core.Service
             _logger = logger;
         }
 
-       
+
         public async Task<ProfileResponse> CreateProfileAsync(
-            Guid userId,
-            ProfileAddRequest request,
-            CancellationToken cancellationToken = default)
+    Guid userId,
+    ProfileAddRequest request,
+    CancellationToken cancellationToken = default)
         {
-            var profile = _mapper.Map<Domain.Entites.Profile>(request);
-            profile.UserId = userId;
-            profile.CreatedAt = DateTime.UtcNow;
+            if (userId == Guid.Empty)
+                throw new BadRequestException("User ID cannot be empty");
 
-            if (request.ProfileImage != null)
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            try
             {
-                profile.ProfileImageUrl =
-                    await _fileService.UploadFileAsync(request.ProfileImage, "profiles", cancellationToken);
-            }
+                var user = await _unitOfWork.Repository<ApplicationUser>()
+                    .GetByIdAsync(userId);
 
-            if (request.BackgroundImage != null)
+                if (user == null)
+                    throw new NotFoundException("User not found");
+
+                var exists = await _unitOfWork.Repository<Domain.Entites.Profile>()
+                    .ExistsAsync(p => p.UserId == userId && !p.IsDeleted, cancellationToken);
+
+                if (exists)
+                    throw new ConflictException("Profile already exists");
+
+                var profile = _mapper.Map<Domain.Entites.Profile>(request);
+                profile.UserId = userId;
+               
+                profile.IsDeleted = false; 
+
+                if (request.ProfileImg != null)
+                {
+                    profile.ProfileImageUrl = await _fileService.UploadFileAsync(
+                        request.ProfileImg,
+                        "profiles",
+                        cancellationToken);
+                }
+
+                if (request.ProfileBackground != null)
+                {
+                    profile.ProfileBackgroundImageUrl = await _fileService.UploadFileAsync(
+                        request.ProfileBackground,
+                        "profiles",
+                        cancellationToken);
+                }
+
+                await _unitOfWork.Repository<Domain.Entites.Profile>()
+                    .AddAsync(profile, cancellationToken);
+
+                
+                await _unitOfWork.CommitTransactionAsync(cancellationToken);
+
+                _logger.LogInformation(
+                    "Profile created successfully. ProfileId: '{ProfileId}', UserId: '{UserId}'",
+                    profile.Id, userId);
+
+                return _mapper.Map<ProfileResponse>(profile);
+            }
+            catch
             {
-                profile.ProfileBackgroundImageUrl =
-                    await _fileService.UploadFileAsync(request.BackgroundImage, "profiles", cancellationToken);
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
             }
-
-            await _unitOfWork.Repository<Domain.Entites.Profile>().AddAsync(profile, cancellationToken);
-            await _unitOfWork.CompleteAsync(cancellationToken);
-
-            _logger.LogInformation("Created new profile for user {UserId}", userId);
-
-            return _mapper.Map<ProfileResponse>(profile);
         }
 
-       
+
+
+
         public async Task<ProfileResponse> UpdateProfileAsync(
-            Guid userId,
-            ProfileUpdateRequest request,
-            CancellationToken cancellationToken = default)
+       Guid userId,
+       ProfileUpdateRequest request,
+       CancellationToken cancellationToken = default)
         {
+            if (userId == Guid.Empty)
+                throw new BadRequestException("User ID cannot be empty");
+
             var profile = await _unitOfWork.Repository<Domain.Entites.Profile>()
-                .FindAsync(p => p.UserId == userId && !p.IsDeleted, cancellationToken);
+                .FindAsync(p => p.UserId == userId && !p.IsDeleted);
 
             if (profile == null)
                 throw new NotFoundException("Profile not found");
 
             _mapper.Map(request, profile);
-
+            profile.UpdatedAt = DateTime.UtcNow;
             if (request.ProfileImageUrl != null)
             {
-                profile.ProfileImageUrl =
-                    await _fileService.UploadFileAsync(request.ProfileImageUrl, "profiles", cancellationToken);
+                var newImageUrl = await _fileService.UploadFileAsync(
+                    request.ProfileImageUrl,
+                    "profiles",
+                    cancellationToken);
+
+                if (!string.IsNullOrEmpty(profile.ProfileImageUrl))
+                {
+                    await _fileService.DeleteFileAsync(
+                        profile.ProfileImageUrl,
+                        cancellationToken);
+                }
+
+                profile.ProfileImageUrl = newImageUrl;
             }
 
             if (request.BackgroundImage != null)
             {
-                profile.ProfileBackgroundImageUrl =
-                    await _fileService.UploadFileAsync(request.BackgroundImage, "profiles", cancellationToken);
+                var newBgUrl = await _fileService.UploadFileAsync(
+                    request.BackgroundImage,
+                    "profiles",
+                    cancellationToken);
+
+                if (!string.IsNullOrEmpty(profile.ProfileBackgroundImageUrl))
+                {
+                    await _fileService.DeleteFileAsync(
+                        profile.ProfileBackgroundImageUrl,
+                        cancellationToken);
+                }
+
+                profile.ProfileBackgroundImageUrl = newBgUrl;
             }
 
             _unitOfWork.Repository<Domain.Entites.Profile>().Update(profile);
             await _unitOfWork.CompleteAsync(cancellationToken);
 
-            _logger.LogInformation("Updated profile for user {UserId}", userId);
+            _logger.LogInformation(
+                "Profile updated successfully. ProfileId: '{ProfileId}', UserId: '{UserId}'",
+                profile.Id, userId);
 
             return _mapper.Map<ProfileResponse>(profile);
         }
 
 
-        public async Task<ProfileResponse> GetProfileByUserIdAsync(
-            Guid userId,
-            CancellationToken cancellationToken = default)
+        public async Task<ProfileResponse> GetProfileByUserIdAsync(Guid userId,CancellationToken cancellationToken = default)
         {
+            if (userId == Guid.Empty)
+                throw new BadRequestException("User ID cannot be empty");
+
             var profile = await _unitOfWork.Repository<Domain.Entites.Profile>()
-                .FindAsync(p => p.UserId == userId && !p.IsDeleted, cancellationToken);
+        .FindAsync(
+            p => p.UserId == userId && !p.IsDeleted,
+            includeProperties: "User",
+            cancellationToken);
+
 
             if (profile == null)
                 throw new NotFoundException("Profile not found");
+            profile.IsDeleted = true;
+            profile.UpdatedAt = DateTime.UtcNow;
 
             return _mapper.Map<ProfileResponse>(profile);
         }
+
 
 
         public async Task<ProfileResponse> GetMyProfileAsync(
@@ -114,6 +188,21 @@ namespace SocialX.Core.Service
             CancellationToken cancellationToken = default)
         {
             return await GetProfileByUserIdAsync(userId, cancellationToken);
+        }
+
+        public async Task DeleteMyProfileAsync(Guid userId)
+        {
+            var profile = await _unitOfWork.Repository<Domain.Entites.Profile>()
+                .FindAsync(p => p.UserId == userId && !p.IsDeleted);
+
+            if (profile == null)
+                throw new NotFoundException("Profile not found");
+
+            profile.IsDeleted = true;
+            profile.UpdatedAt = DateTime.UtcNow;
+
+            _unitOfWork.Repository<Domain.Entites.Profile>().Update(profile);
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

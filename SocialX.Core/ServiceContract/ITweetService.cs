@@ -36,5 +36,12 @@ namespace SocialX.Core.ServiceContract
           int pageNumber,
           int pageSize,
           CancellationToken cancellationToken = default);
+
+        Task<PaginatedResult<TweetResponse>> GetTweetsByUserIdAsync(
+    Guid userId,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken = default);
+
     }
 }

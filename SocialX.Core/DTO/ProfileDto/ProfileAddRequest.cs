@@ -12,14 +12,22 @@ namespace SocialX.Core.DTO.ProfileDto
 {
     public class ProfileAddRequest
     {
-        [Required]
-        [MaxLength(50)]
+        [Required(ErrorMessage = " name is required")]
         public string NickName { get; set; }
 
-        [MaxLength(160)]
+
+     
+
         public string? Bio { get; set; }
 
-        public IFormFile? ProfileImage { get; set; }
-        public IFormFile? BackgroundImage { get; set; }
+        [Required(ErrorMessage = "Profile image is required")]
+        public IFormFile? ProfileImg { get; set; }
+
+        [Required(ErrorMessage = "Profile background is required")]
+        public IFormFile? ProfileBackground { get; set; }
+
+        public GenderOptions Gender { get; set; } = GenderOptions.MALE;
+
+
     }
 }

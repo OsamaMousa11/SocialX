@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using SocialX.Core.Domain.Entites;
 using SocialX.Core.DTO.Common;
 using SocialX.Core.DTO.LikeDto;
+using SocialX.Core.DTO.NotificationDto;
+using SocialX.Core.Enumuration;
 using SocialX.Core.Exceptions;
 using SocialX.Core.IUnitofWork;
 using SocialX.Core.ServiceContract;
@@ -14,20 +16,27 @@ namespace SocialX.Core.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<LikeService> _logger;
+        private readonly INotificationServices _notificationService;
 
-        public LikeService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<LikeService> logger)
+        public LikeService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<LikeService> logger,
+            INotificationServices notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
+      
         public async Task LikeTweetAsync(Guid userId, Guid tweetId, CancellationToken ct)
         {
-            var tweetExists = await _unitOfWork.Repository<Tweet>()
-                .ExistsAsync(t => t.Id == tweetId && !t.IsDeleted, ct);
+            var tweet = await _unitOfWork.Repository<Tweet>()
+                .FindAsync(t => t.Id == tweetId && !t.IsDeleted, cancellationToken: ct);
 
-            if (!tweetExists)
+            if (tweet == null)
                 throw new NotFoundException("Tweet not found");
 
             var alreadyLiked = await _unitOfWork.Repository<Like>()
@@ -46,7 +55,27 @@ namespace SocialX.Core.Service
             await _unitOfWork.Repository<Like>().AddAsync(like, ct);
             await _unitOfWork.CompleteAsync(ct);
 
-            _logger.LogInformation("User {UserId} liked tweet {TweetId}", userId, tweetId);
+           
+            if (tweet.UserId != userId)
+            {
+                try
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        new CreateNotificationDto
+                        {
+                            UserId = tweet.UserId, 
+                            ActorUserId = userId,   
+                            Type = NotificationType.Like,
+                            EntityId = tweetId,
+                            Content = "liked your tweet"
+                        },
+                        ct);
+                }
+                catch { }
+            }
+
+            _logger.LogInformation(
+                "User {UserId} liked tweet {TweetId}", userId, tweetId);
         }
 
         public async Task UnlikeTweetAsync(Guid userId, Guid tweetId, CancellationToken ct)
@@ -60,7 +89,8 @@ namespace SocialX.Core.Service
             _unitOfWork.Repository<Like>().Delete(like);
             await _unitOfWork.CompleteAsync(ct);
 
-            _logger.LogInformation("User {UserId} unliked tweet {TweetId}", userId, tweetId);
+            _logger.LogInformation(
+                "User {UserId} unliked tweet {TweetId}", userId, tweetId);
         }
 
         public async Task<bool> IsLikedTweetAsync(Guid userId, Guid tweetId, CancellationToken ct)
@@ -105,12 +135,14 @@ namespace SocialX.Core.Service
                 .CountAsync(l => l.TweetId == tweetId, ct);
         }
 
+    
+
         public async Task LikeCommentAsync(Guid userId, Guid commentId, CancellationToken ct)
         {
-            var commentExists = await _unitOfWork.Repository<Comment>()
-                .ExistsAsync(c => c.Id == commentId && !c.IsDeleted, ct);
+            var comment = await _unitOfWork.Repository<Comment>()
+                .FindAsync(c => c.Id == commentId && !c.IsDeleted, cancellationToken: ct);
 
-            if (!commentExists)
+            if (comment == null)
                 throw new NotFoundException("Comment not found");
 
             var alreadyLiked = await _unitOfWork.Repository<Like>()
@@ -128,6 +160,25 @@ namespace SocialX.Core.Service
 
             await _unitOfWork.Repository<Like>().AddAsync(like, ct);
             await _unitOfWork.CompleteAsync(ct);
+
+   
+            if (comment.UserId != userId)
+            {
+                try
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        new CreateNotificationDto
+                        {
+                            UserId = comment.UserId, 
+                            ActorUserId = userId,
+                            Type = NotificationType.Like,
+                            EntityId = commentId,
+                            Content = "liked your comment"
+                        },
+                        ct);
+                }
+                catch { }
+            }
         }
 
         public async Task UnlikeCommentAsync(Guid userId, Guid commentId, CancellationToken ct)

@@ -65,13 +65,21 @@ namespace SocialX.Core.Service
                     cancellationToken);
             }
 
+            await _unitOfWork.Repository<Tweet>()
+     .AddAsync(tweet, cancellationToken);
+
             await _unitOfWork.CompleteAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "User {UserId} created tweet {TweetId}",
-                userId, tweet.Id);
+          
+            var fullTweet = await _unitOfWork.Repository<Tweet>()
+                .FindAsync(
+                    t => t.Id == tweet.Id,
+                    includeProperties: "User,User.Profile,Attachments",
+                    cancellationToken: cancellationToken
+                );
 
-            return _mapper.Map<TweetResponse>(tweet);
+            return _mapper.Map<TweetResponse>(fullTweet);
+
         }
 
 
@@ -142,17 +150,80 @@ namespace SocialX.Core.Service
         {
             var tweet = await _unitOfWork.Repository<Tweet>()
                 .FindAsync(
-                    t => t.Id == tweetId ,
-                 
-                    cancellationToken: cancellationToken);
+    t => t.Id == tweetId && !t.IsDeleted,
+    includeProperties: "User.Profile,Attachments",
+    cancellationToken: cancellationToken
+);
+
 
             if (tweet == null)
                 throw new NotFoundException("Tweet not found");
 
             return _mapper.Map<TweetResponse>(tweet);
         }
+        public async Task<CommentResponse> UpdateCommentAsync(
+    Guid userId,
+    Guid commentId,
+    CommentUpdateRequest request,
+    CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(request.Content))
+                throw new BadRequestException("Content cannot be empty");
 
-       
+            var comment = await _unitOfWork.Repository<Comment>()
+                .FindAsync(c => c.Id == commentId && !c.IsDeleted,
+                           includeProperties: "User.Profile,Attachments,Likes,Replies",
+                           cancellationToken: cancellationToken);
+
+            if (comment == null)
+                throw new NotFoundException("Comment not found");
+
+            if (comment.UserId != userId)
+                throw new ForbiddenException("You are not allowed to edit this comment");
+
+            comment.Content = request.Content;
+            comment.UpdatedAt = DateTime.UtcNow;
+
+            _unitOfWork.Repository<Comment>().Update(comment);
+            await _unitOfWork.CompleteAsync(cancellationToken);
+
+            return _mapper.Map<CommentResponse>(comment);
+        }
+
+        public async Task<PaginatedResult<TweetResponse>> GetTweetsByUserIdAsync(
+    Guid userId,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken = default)
+        {
+            if (pageNumber <= 0 || pageSize <= 0)
+                throw new BadRequestException("Invalid pagination parameters");
+
+            var totalCount = await _unitOfWork.Repository<Tweet>()
+                .CountAsync(
+                    t => t.UserId == userId && !t.IsDeleted,
+                    cancellationToken);
+
+            var tweets = await _unitOfWork.Repository<Tweet>()
+                .GetPagedAsync(
+                    pageNumber,
+                    pageSize,
+                    predicate: t => t.UserId == userId && !t.IsDeleted,
+                    orderBy: q => q.OrderByDescending(t => t.CreatedAt),
+                    includeProperties: "User.Profile,Attachments",
+                    cancellationToken: cancellationToken);
+
+            var responses = _mapper.Map<List<TweetResponse>>(tweets);
+
+            return new PaginatedResult<TweetResponse>(
+                responses,
+                totalCount,
+                pageNumber,
+                pageSize);
+        }
+
+
+
         public async Task<PaginatedResult<TweetResponse>> GetFeedAsync(
             Guid userId,
             int pageNumber,

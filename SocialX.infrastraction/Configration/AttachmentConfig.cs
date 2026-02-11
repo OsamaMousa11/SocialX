@@ -38,10 +38,7 @@ namespace SocialX.infrastraction.Configration
                    .HasForeignKey(m => m.CommentId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasOne(m => m.Message)
-                   .WithMany(msg => msg.Attachments)
-                   .HasForeignKey(m => m.MessageId)
-                .OnDelete(DeleteBehavior.NoAction);
+      
 
 
             builder.HasIndex(m => m.TweetId);

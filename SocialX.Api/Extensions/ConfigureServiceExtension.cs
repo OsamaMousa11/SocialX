@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.IdentityModel.Tokens;
 using SocialX.Application.FileService;
 using SocialX.Application.Services;
 using SocialX.Core.Domain.IdentityEntites;
+using SocialX.Core.Domain.Services;
 using SocialX.Core.DTO.AuthenticationDTO;
+using SocialX.Core.DTO.Common;
 using SocialX.Core.IUnitofWork;
 using SocialX.Core.MappingProfile;
 using SocialX.Core.Service;
@@ -50,34 +53,49 @@ namespace SocialX.Api.Extensions
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            });
+            Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-               .AddJwtBearer(o =>
-               {
-                   o.RequireHttpsMetadata = false;
-                   o.SaveToken = false;
-                   o.TokenValidationParameters = new TokenValidationParameters
-                   {
-                       ValidateIssuerSigningKey = true,
-                       ValidateIssuer = true,
-                       ValidateAudience = true,
-                       ValidateLifetime = true,
-                       ValidIssuer = Configuration["JWT:Issuer"],
-                       ValidAudience = Configuration["JWT:Audience"],
-                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Key"])),
-                       ClockSkew = TimeSpan.Zero
-                   };
-               });
-            Services.Configure<DataProtectionTokenProviderOptions>(options =>
+.AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = false;
+
+ 
+    o.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs/notification"))
             {
-                options.TokenLifespan = TimeSpan.FromHours(1);
-            });
-            Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
-                });
-            });
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
+
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidIssuer = Configuration["JWT:Issuer"],
+        ValidAudience = Configuration["JWT:Audience"],
+        IssuerSigningKey =
+            new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(Configuration["JWT:Key"])),
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
             Services.Configure<FileSettings>(Configuration.GetSection("FileSettings"));
             Services.AddScoped<IFileService, FileService>();
@@ -93,11 +111,10 @@ namespace SocialX.Api.Extensions
             Services.AddScoped<IMentionService, MentionService>();
             Services.AddScoped<ICommentService, CommentService>();
             Services.AddScoped<ILikeService, LikeService>();
-
-
-
-
-
+            Services.AddScoped< IProfileService, ProfileService>();
+            Services.AddScoped<IFollowService, FollowService>();
+            Services.AddScoped<INotificationServices, NotificationService>();
+            Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
             Services.AddControllers()
        .AddJsonOptions(options =>

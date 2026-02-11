@@ -8,10 +8,12 @@ namespace SocialX.Core.Enumuration
 {
     public enum NotificationType
     {
+        Message,
         Like ,
         Comment ,
         Follow ,
+        Retweet ,
         Mention ,
-        Retweet,
+        GroupInvite 
     }
 }

@@ -12,8 +12,8 @@ using SocialX.Infrastructure.Data;
 namespace SocialX.infrastraction.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260116024019_init")]
-    partial class init
+    [Migration("20260211003006_ini")]
+    partial class ini
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -264,85 +264,6 @@ namespace SocialX.infrastraction.Migrations
                     b.ToTable("Comments", (string)null);
                 });
 
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.Conversation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("LastMessageAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("IsDeleted");
-
-                    b.HasIndex("LastMessageAt");
-
-                    b.ToTable("Conversations", (string)null);
-                });
-
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.ConversationParticipant", b =>
-                {
-                    b.Property<Guid>("ConversationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<DateTime>("JoinedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid?>("LastReadMessageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LeftAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ConversationId", "UserId");
-
-                    b.HasIndex("ConversationId");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId", "IsActive");
-
-                    b.ToTable("ConversationParticipants", (string)null);
-                });
-
             modelBuilder.Entity("SocialX.Core.Domain.Entites.Follow", b =>
                 {
                     b.Property<Guid>("FollowerId")
@@ -441,62 +362,6 @@ namespace SocialX.infrastraction.Migrations
                     b.HasIndex("MentionedUserId");
 
                     b.ToTable("Mentions", (string)null);
-                });
-
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.Message", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<Guid>("ConversationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("SenderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConversationId");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("IsDeleted");
-
-                    b.HasIndex("IsRead");
-
-                    b.HasIndex("SenderId");
-
-                    b.HasIndex("ConversationId", "CreatedAt");
-
-                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("SocialX.Core.Domain.Entites.Notification", b =>
@@ -837,19 +702,12 @@ namespace SocialX.infrastraction.Migrations
                         .HasForeignKey("CommentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("SocialX.Core.Domain.Entites.Message", "Message")
-                        .WithMany("Attachments")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("SocialX.Core.Domain.Entites.Tweet", "Tweet")
                         .WithMany("Attachments")
                         .HasForeignKey("TweetId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Comment");
-
-                    b.Navigation("Message");
 
                     b.Navigation("Tweet");
                 });
@@ -895,25 +753,6 @@ namespace SocialX.infrastraction.Migrations
                     b.Navigation("ParentComment");
 
                     b.Navigation("Tweet");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.ConversationParticipant", b =>
-                {
-                    b.HasOne("SocialX.Core.Domain.Entites.Conversation", "Conversation")
-                        .WithMany("Participants")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SocialX.Core.storeCore.Domain.IdentityEntites.ApplicationUser", "User")
-                        .WithMany("ConversationParticipants")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
 
                     b.Navigation("User");
                 });
@@ -989,25 +828,6 @@ namespace SocialX.infrastraction.Migrations
                     b.Navigation("MentionedUser");
 
                     b.Navigation("Tweet");
-                });
-
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.Message", b =>
-                {
-                    b.HasOne("SocialX.Core.Domain.Entites.Conversation", "Conversation")
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SocialX.Core.storeCore.Domain.IdentityEntites.ApplicationUser", "Sender")
-                        .WithMany("Messages")
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("SocialX.Core.Domain.Entites.Notification", b =>
@@ -1135,21 +955,9 @@ namespace SocialX.infrastraction.Migrations
                     b.Navigation("Replies");
                 });
 
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.Conversation", b =>
-                {
-                    b.Navigation("Messages");
-
-                    b.Navigation("Participants");
-                });
-
             modelBuilder.Entity("SocialX.Core.Domain.Entites.Hashtag", b =>
                 {
                     b.Navigation("TweetHashtags");
-                });
-
-            modelBuilder.Entity("SocialX.Core.Domain.Entites.Message", b =>
-                {
-                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("SocialX.Core.Domain.Entites.Tweet", b =>
@@ -1175,8 +983,6 @@ namespace SocialX.infrastraction.Migrations
 
                     b.Navigation("Comments");
 
-                    b.Navigation("ConversationParticipants");
-
                     b.Navigation("Followers");
 
                     b.Navigation("Following");
@@ -1184,8 +990,6 @@ namespace SocialX.infrastraction.Migrations
                     b.Navigation("Likes");
 
                     b.Navigation("Mentions");
-
-                    b.Navigation("Messages");
 
                     b.Navigation("Profile")
                         .IsRequired();

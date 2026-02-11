@@ -18,8 +18,7 @@ namespace SocialX.Core.storeCore.Domain.IdentityEntites
         public ICollection<Like>? Likes { get; set; }
         public ICollection<Bookmark>? Bookmarks { get; set; }
     
-        public ICollection<Message>? Messages { get; set; }
-
+    
          public ICollection<Mention>? Mentions { get; set; }
 
       
@@ -31,7 +30,6 @@ namespace SocialX.Core.storeCore.Domain.IdentityEntites
         public ICollection<Follow>? Following { get; set; }
 
        
-        public ICollection<ConversationParticipant>? ConversationParticipants { get; set; }
 
         
         public ICollection<RefreshToken>? RefreshTokens { get; set; }

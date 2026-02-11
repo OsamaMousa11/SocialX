@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SignalR Test</title>
+    <script src="https://unpkg.com/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+</head>
+<body>
+
+    <h3>SignalR Notification Test</h3>
+    <p>سيب الصفحة مفتوحة واعمل Like من Postman</p>
+
+    <script>
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJPc2FtYTIiLCJqdGkiOiJmMmVlMTgxMS0zZjY2LTRhY2ItYTU1ZS0wYjg4NTUzYWM2Y2UiLCJlbWFpbCI6InVzZXIxMUBleGFtcGxlLmNvbSIsInVpZCI6IjYwMjBhM2YxLTFmZmUtNDViOC1kMTQ4LTA4ZGU2ODE0YjQwYSIsInJvbGVzIjoiVVNFUiIsImV4cCI6MTc3MzMzMjEyNiwiaXNzIjoiU2VjdXJlQXBpIiwiYXVkIjoiU2VjdXJlQXBpVXNlciJ9.rwvSp16HE7oKRMKKRVelgjrR2uLEjwrH5zhm_g-TTlQ";
+
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:44393/hubs/notification", {
+      accessTokenFactory: () => token
+    })
+    .build();
+
+  connection.on("ReceiveNotification", data => {
+    console.log("🔔 Notification received:", data);
+    alert("🔔 New Notification");
+  });
+
+  connection.start()
+    .then(() => console.log("✅ Connected"))
+    .catch(err => console.error(err));
+    </script>
+
+</body>
+</html>

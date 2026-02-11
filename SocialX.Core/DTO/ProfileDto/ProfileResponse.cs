@@ -10,6 +10,7 @@ namespace SocialX.Core.DTO.ProfileDto
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
+        public string UserName { get; set; }
         public string NickName { get; set; }
         public string? Bio { get; set; }
         public string? ProfileImageUrl { get; set; }
